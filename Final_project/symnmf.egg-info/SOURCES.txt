@@ -1,0 +1,8 @@
+matrix_ops.c
+setup.py
+symnmf.c
+symnmfmodule.c
+symnmf.egg-info/PKG-INFO
+symnmf.egg-info/SOURCES.txt
+symnmf.egg-info/dependency_links.txt
+symnmf.egg-info/top_level.txt

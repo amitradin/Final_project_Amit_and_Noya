@@ -7,7 +7,7 @@ import numpy as np
 
 def similarity_matrix(points):
     """
-    A_ij = exp(-||x_i - x_j||_2^2) for i != j, A_ii = 0.
+    A_ij = exp(-||x_i - x_j||_2^2 / 2) for i != j, A_ii = 0.
     points: (n, d) array.
     """
     points = np.asarray(points, dtype=np.float32)
@@ -16,7 +16,7 @@ def similarity_matrix(points):
     for i in range(n):
         for j in range(i + 1, n):
             d_sq = np.sum((points[i] - points[j]) ** 2)
-            A[i, j] = np.exp(-d_sq)
+            A[i, j] = np.exp(-d_sq / 2.0)
             A[j, i] = A[i, j]
     return A
 
