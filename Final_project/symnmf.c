@@ -92,7 +92,7 @@ static void print_matrix(double **M, int rows, int cols)
     }
 }
 
-/* Similarity matrix A: A_ij = exp(-||x_i - x_j||^2), A_ii = 0. */
+/* Similarity matrix A: A_ij = exp(-||x_i - x_j||^2 / 2), A_ii = 0. */
 double **sym(const double **points, int n, int d)
 {
     double **A;
@@ -105,7 +105,7 @@ double **sym(const double **points, int n, int d)
         A[i][i] = 0.0;
         for (j = i + 1; j < n; j++) {
             dist = squared_euclidean_dist(points[i], points[j], d);
-            A[i][j] = exp(-dist);
+            A[i][j] = exp(-dist / 2.0);
             A[j][i] = A[i][j];
         }
     }
