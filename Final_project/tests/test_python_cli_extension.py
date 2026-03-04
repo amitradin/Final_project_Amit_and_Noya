@@ -49,7 +49,7 @@ class TestPythonCLIExtension(unittest.TestCase):
         ref = similarity_matrix(points)
         result = ext.sym(points.tolist())
         self.assertIsNotNone(result)
-        arr = np.array(result, dtype=np.float64)
+        arr = np.array(result, dtype=np.float32)
         self.assertEqual(arr.shape, ref.shape)
         np.testing.assert_allclose(arr, ref, rtol=RTOL, atol=ATOL)
 
@@ -62,7 +62,7 @@ class TestPythonCLIExtension(unittest.TestCase):
         ref = degree_matrix(points)
         result = ext.ddg(points.tolist())
         self.assertIsNotNone(result)
-        arr = np.array(result, dtype=np.float64)
+        arr = np.array(result, dtype=np.float32)
         self.assertEqual(arr.shape, ref.shape)
         np.testing.assert_allclose(arr, ref, rtol=RTOL, atol=ATOL)
 
@@ -75,7 +75,7 @@ class TestPythonCLIExtension(unittest.TestCase):
         ref = normalized_similarity(points)
         result = ext.norm(points.tolist())
         self.assertIsNotNone(result)
-        arr = np.array(result, dtype=np.float64)
+        arr = np.array(result, dtype=np.float32)
         self.assertEqual(arr.shape, ref.shape)
         np.testing.assert_allclose(arr, ref, rtol=RTOL, atol=ATOL)
 
@@ -88,14 +88,14 @@ class TestPythonCLIExtension(unittest.TestCase):
         points_list = points.tolist()
         W = ext.norm(points_list)
         self.assertIsNotNone(W)
-        W_arr = np.array(W, dtype=np.float64)
+        W_arr = np.array(W, dtype=np.float32)
         n, k = points.shape[0], 2
         m = float(np.mean(W_arr))
         np.random.seed(1234)
-        H_init = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).astype(np.float64).tolist()
+        H_init = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).astype(np.float32).tolist()
         H_final = ext.symnmf(H_init, W, 1e-4, 300)
         self.assertIsNotNone(H_final)
-        H_arr = np.array(H_final, dtype=np.float64)
+        H_arr = np.array(H_final, dtype=np.float32)
         self.assertEqual(H_arr.shape, (n, k))
         self.assertTrue(np.all(H_arr >= -1e-10))
 

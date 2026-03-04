@@ -12,7 +12,7 @@ def load_points(file_name):
                 continue
             coords = [float(x) for x in line.split(',')]
             points.append(coords)
-    return np.array(points, dtype=np.float64)
+    return np.array(points, dtype=np.float32)
 
 
 def run_symnmf(points, k, epsilon=1e-4, max_iter=300):
@@ -25,12 +25,12 @@ def run_symnmf(points, k, epsilon=1e-4, max_iter=300):
     W = symnmf_mod.norm(points_list)
     if W is None:
         return None
-    W_arr = np.array(W, dtype=np.float64)
+    W_arr = np.array(W, dtype=np.float32)
     m = float(np.mean(W_arr))
     n = points.shape[0]
-    H_init = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).astype(np.float64)
+    H_init = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).astype(np.float32)
     H_list = H_init.tolist()
     H_final = symnmf_mod.symnmf(H_list, W, epsilon, max_iter)
     if H_final is None:
         return None
-    return np.array(H_final, dtype=np.float64)
+    return np.array(H_final, dtype=np.float32)

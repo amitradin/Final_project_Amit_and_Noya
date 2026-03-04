@@ -24,7 +24,7 @@ def load_points_from_file(path):
                 continue
             coords = [float(x) for x in line.split(",")]
             points.append(coords)
-    return np.array(points, dtype=np.float64)
+    return np.array(points, dtype=np.float32)
 
 
 def parse_matrix_output(stdout):
@@ -41,7 +41,7 @@ def parse_matrix_output(stdout):
     for row in rows:
         if len(row) != m:
             raise ValueError("Inconsistent column count")
-    return np.array(rows, dtype=np.float64)
+    return np.array(rows, dtype=np.float32)
 
 
 def run_c_symnmf(goal, filepath, cwd=None):
