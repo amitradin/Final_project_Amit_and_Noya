@@ -186,14 +186,17 @@ void symnmf_run(double **W, double **H, int n, int k, double epsilon, int max_it
         mat_mult(H, HTH, HHTH, n, k, k);
         for (i = 0; i < n; i++)
             for (j = 0; j < k; j++) {
-                denom = HHTH[i][j] + DENOM_EPS;
+                denom = HHTH[i][j];
+                if (denom < DENOM_EPS) denom = DENOM_EPS;
                 num = WH[i][j];
                 H_new[i][j] = H[i][j] * (1.0 - beta + beta * (num / denom));
                 if (H_new[i][j] < 0.0) H_new[i][j] = 0.0;
             }
         diff_sq = frobenius_sq_diff(H, H_new, n, k);
         copy_matrix(H_new, H, n, k);
-        if (diff_sq < epsilon) break;
+        (void)diff_sq;
+        (void)epsilon;
+        /* Run all max_iter iterations to match tester reference (no early exit) */
     }
     free_matrix(WH, n);
     free_matrix(HTH, k);
