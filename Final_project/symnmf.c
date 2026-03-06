@@ -194,9 +194,7 @@ void symnmf_run(double **W, double **H, int n, int k, double epsilon, int max_it
             }
         diff_sq = frobenius_sq_diff(H, H_new, n, k);
         copy_matrix(H_new, H, n, k);
-        (void)diff_sq;
-        (void)epsilon;
-        /* Run all max_iter iterations to match tester reference (no early exit) */
+        if (diff_sq < epsilon) break;
     }
     free_matrix(WH, n);
     free_matrix(HTH, k);
