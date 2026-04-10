@@ -1,5 +1,8 @@
+"""This file is for running the K-means algorithm copied from HW1"""
+
+
 import sys
-EPSILON = 0.001
+EPSILON = 1e-4
 
 def main(args):
     inputs = []

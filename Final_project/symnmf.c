@@ -13,7 +13,7 @@
 #define DENOM_EPS 1e-9
 #define LINE_BUF_INIT 256
 
-/* Read one line from file; caller must free the returned buffer. */
+/* This function is for reading one line from a file; caller must free the returned buffer. */
 static char *read_line(FILE *f)
 {
     size_t size, pos;
@@ -37,7 +37,7 @@ static char *read_line(FILE *f)
     return buf;
 }
 
-/* Load points from file (one point per line, comma-separated). Returns 0 on success. */
+/* This function is for loading the points from a file */
 static int load_points(const char *filename, double ***points, int *n, int *d)
 {
     FILE *f;
@@ -56,12 +56,14 @@ static int load_points(const char *filename, double ***points, int *n, int *d)
         (*d)++;
     free(line);
     (*n)++;
+
     while ((line = read_line(f)) != NULL) {
         free(line);
         (*n)++;
     }
     if (*n == 0 || *d == 0) { fclose(f); return -1; }
-    rewind(f);
+    rewind(f); /*rewind the file to the beginning*/
+
     P = allocate_matrix(*n, *d);
     if (P == NULL) { fclose(f); return -1; }
     for (i = 0; i < *n; i++) {
@@ -74,16 +76,16 @@ static int load_points(const char *filename, double ***points, int *n, int *d)
         }
         free(line);
     }
-    fclose(f);
+    fclose(f); /*close the file*/
     *points = P;
     return 0;
 }
 
-/* Print matrix with 4 decimal places, comma between values, newline per row. */
+/*this function is for printing the matrix with 4 decimal places, comma between values, newline per row. */
 static void print_matrix(double **M, int rows, int cols)
 {
     int i, j;
-    for (i = 0; i < rows; i++) {
+    for (i = 0; i < rows; i++) { /*iterate over the rows*/
         for (j = 0; j < cols; j++) {
             if (j > 0) printf(",");
             printf("%.4f", M[i][j]);
@@ -112,7 +114,7 @@ double **sym(const double **points, int n, int d)
     return A;
 }
 
-/* Diagonal degree matrix: D_ii = row sum of A, rest zero. */
+/* This function is for computing the diagonal degree matrix D: D_ii = row sum of A, rest zero. */
 double **ddg(const double **points, int n, int d)
 {
     double **A, **D;
@@ -134,7 +136,7 @@ double **ddg(const double **points, int n, int d)
     return D;
 }
 
-/* Normalized similarity W = D^{-1/2} A D^{-1/2}. Use 1.0 where degree is 0. */
+/* This function is for computing the normalized similarity matrix W: W = D^{-1/2} A D^{-1/2}. Use 1.0 where degree is 0. */
 double **norm(const double **points, int n, int d)
 {
     double **A, **W;
@@ -143,17 +145,17 @@ double **norm(const double **points, int n, int d)
 
     A = sym(points, n, d);
     if (A == NULL) return NULL;
-    sqrt_deg = (double *)malloc((size_t)n * sizeof(double));
+    sqrt_deg = (double *)malloc((size_t)n * sizeof(double)); /*allocate memory for the square root of the degree*/
     if (sqrt_deg == NULL) { free_matrix(A, n); return NULL; }
     for (i = 0; i < n; i++) {
         sqrt_deg[i] = 0.0;
-        for (j = 0; j < n; j++)
+        for (j = 0; j < n; j++) /*iterate over the columns*/
             sqrt_deg[i] += A[i][j];
         sqrt_deg[i] = (sqrt_deg[i] > 0) ? sqrt(sqrt_deg[i]) : 1.0;
     }
     W = allocate_matrix(n, n);
     if (W == NULL) { free(sqrt_deg); free_matrix(A, n); return NULL; }
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; i++) /*iterate over the rows*/
         for (j = 0; j < n; j++)
             W[i][j] = A[i][j] / (sqrt_deg[i] * sqrt_deg[j]);
     free(sqrt_deg);
@@ -173,6 +175,7 @@ void symnmf_run(double **W, double **H, int n, int k, double epsilon, int max_it
     HTH = allocate_matrix(k, k);
     HHTH = allocate_matrix(n, k);
     H_new = allocate_matrix(n, k);
+    /*check if the matrices are not null*/
     if (WH == NULL || HTH == NULL || HHTH == NULL || H_new == NULL) {
         if (WH) free_matrix(WH, n);
         if (HTH) free_matrix(HTH, k);
@@ -180,10 +183,10 @@ void symnmf_run(double **W, double **H, int n, int k, double epsilon, int max_it
         if (H_new) free_matrix(H_new, n);
         return;
     }
-    for (iter = 0; iter < max_iter; iter++) {
-        mat_mult(W, H, WH, n, n, k);
-        mat_mult_ATB(H, H, HTH, n, k, k);
-        mat_mult(H, HTH, HHTH, n, k, k);
+    for (iter = 0; iter < max_iter; iter++) { /*iterate over the maximum number of iterations*/
+        mat_mult(W, H, WH, n, n, k); /*multiply the matrices W and H*/
+        mat_mult_ATB(H, H, HTH, n, k, k); /*multiply the matrices H and H transpose*/
+        mat_mult(H, HTH, HHTH, n, k, k); /*multiply the matrices H and HTH*/
         for (i = 0; i < n; i++)
             for (j = 0; j < k; j++) {
                 denom = HHTH[i][j];
@@ -202,10 +205,10 @@ void symnmf_run(double **W, double **H, int n, int k, double epsilon, int max_it
     free_matrix(H_new, n);
 }
 
-/* Standalone binary: ./symnmf sym|ddg|norm <file> */
+/* This function is for running the standalone function sym/ddg/norm*/
 int main(int argc, char **argv)
 {
-    double **points = NULL, **result = NULL;
+    double **points = NULL, **result = NULL; /*points is the matrix of points, result is the matrix of results*/
     int n, d;
     const char *goal, *file_name;
 
@@ -219,13 +222,13 @@ int main(int argc, char **argv)
         printf("An Error Has Occurred\n");
         return 1;
     }
-    if (strcmp(goal, "sym") == 0) {
+    if (strcmp(goal, "sym") == 0) { /*if the goal is sym, compute the similarity matrix*/
         result = sym((const double **)points, n, d);
         if (result) { print_matrix(result, n, n); free_matrix(result, n); }
-    } else if (strcmp(goal, "ddg") == 0) {
+    } else if (strcmp(goal, "ddg") == 0) { /*if the goal is ddg, compute the diagonal degree matrix*/
         result = ddg((const double **)points, n, d);
         if (result) { print_matrix(result, n, n); free_matrix(result, n); }
-    } else if (strcmp(goal, "norm") == 0) {
+    } else if (strcmp(goal, "norm") == 0) { /*if the goal is norm, compute the normalized similarity matrix*/
         result = norm((const double **)points, n, d);
         if (result) { print_matrix(result, n, n); free_matrix(result, n); }
     } else {

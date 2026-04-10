@@ -1,6 +1,6 @@
 /*
- * Python C extension: exposes sym, ddg, norm, symnmf to Python.
- * Converts list-of-lists to/from double** and calls the symnmf.c implementations.
+ * This Python C extension exposes sym, ddg, norm, symnmf to Python.
+ * This code converts list-of-lists to/from double** and calls the symnmf.c implementations.
  */
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -15,9 +15,9 @@ static double **py_to_matrix(PyObject *py_mat, int *rows, int *cols)
     Py_ssize_t i, j, n, m;
     double **M;
 
-    if (!PyList_Check(py_mat)) return NULL;
+    if (!PyList_Check(py_mat)) return NULL; /*check if the matrix is a list of lists*/
     n = PyList_Size(py_mat);
-    if (n < 1) return NULL;
+    if (n < 1) return NULL; /*check if the matrix is not empty*/
     row_obj = PyList_GetItem(py_mat, 0);
     if (!PyList_Check(row_obj)) return NULL;
     m = PyList_Size(row_obj);
@@ -26,15 +26,15 @@ static double **py_to_matrix(PyObject *py_mat, int *rows, int *cols)
     *cols = (int)m;
     M = allocate_matrix((int)n, (int)m);
     if (M == NULL) return NULL;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) { /*iterate over the rows*/
         row_obj = PyList_GetItem(py_mat, i);
-        if (!PyList_Check(row_obj) || PyList_Size(row_obj) != m) {
+        if (!PyList_Check(row_obj) || PyList_Size(row_obj) != m) { /*check if the row is a list of lists and the size of the row is equal to the number of columns*/
             free_matrix(M, (int)n);
             return NULL;
         }
         for (j = 0; j < m; j++) {
             PyObject *val = PyList_GetItem(row_obj, j);
-            M[i][j] = PyFloat_AsDouble(val);
+            M[i][j] = PyFloat_AsDouble(val); 
             if (PyErr_Occurred()) {
                 free_matrix(M, (int)n);
                 return NULL;
@@ -51,14 +51,14 @@ static PyObject *matrix_to_py(double **M, int rows, int cols)
     int i, j;
 
     result = PyList_New(rows);
-    if (result == NULL) return NULL;
-    for (i = 0; i < rows; i++) {
+    if (result == NULL) return NULL; 
+    for (i = 0; i < rows; i++) { /*iterate over the rows*/
         row = PyList_New(cols);
-        if (row == NULL) {
+        if (row == NULL) { /*check if the row is not null*/
             Py_DECREF(result);
             return NULL;
         }
-        for (j = 0; j < cols; j++) {
+        for (j = 0; j < cols; j++) { /*iterate over the columns*/
             PyList_SetItem(row, j, PyFloat_FromDouble(M[i][j]));
         }
         PyList_SetItem(result, i, row);
@@ -85,6 +85,7 @@ static PyObject *symnmf_sym(PyObject *self, PyObject *args)
     return result_obj;
 }
 
+/* This function is for computing the diagonal degree matrix D. */
 static PyObject *symnmf_ddg(PyObject *self, PyObject *args)
 {
     PyObject *py_points, *result_obj;
@@ -103,6 +104,7 @@ static PyObject *symnmf_ddg(PyObject *self, PyObject *args)
     return result_obj;
 }
 
+/*this function is for computing the normalized similarity matrix W.*/
 static PyObject *symnmf_norm(PyObject *self, PyObject *args)
 {
     PyObject *py_points, *result_obj;
@@ -121,6 +123,7 @@ static PyObject *symnmf_norm(PyObject *self, PyObject *args)
     return result_obj;
 }
 
+/* This function is for running the SymNMF algorithm: compute W from points, init H, then iterative update. */
 static PyObject *symnmf_symnmf(PyObject *self, PyObject *args)
 {
     PyObject *py_H, *py_W, *result_obj;
@@ -142,6 +145,7 @@ static PyObject *symnmf_symnmf(PyObject *self, PyObject *args)
     return result_obj;
 }
 
+/* This function is for defining the methods of the module. */
 static PyMethodDef symnmf_methods[] = {
     {"sym", symnmf_sym, METH_VARARGS, "Compute similarity matrix A."},
     {"ddg", symnmf_ddg, METH_VARARGS, "Compute diagonal degree matrix D."},

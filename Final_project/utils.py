@@ -3,7 +3,7 @@ import numpy as np
 
 
 def load_points(file_name):
-    """Read points from a .txt file: one point per line, comma-separated coords."""
+    """This functions is for loading the points via a file""" 
     points = []
     with open(file_name, 'r') as f:
         for line in f:
@@ -17,8 +17,8 @@ def load_points(file_name):
 
 def run_symnmf(points, k, epsilon=1e-4, max_iter=300):
     """
-    Run SymNMF: compute W from points, init H, then iterative update.
-    Returns final H as (n, k) numpy array, or None on failure.
+    This function is for running the SymNMF algorithm: compute W from points, init H, then iterative update.
+    it returns the final H as (n, k) numpy array, or None on failure.
     """
     import _symnmf as symnmf_mod
     points_list = points.tolist()

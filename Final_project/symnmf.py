@@ -16,7 +16,7 @@ def print_matrix(M):
 
 
 def main():
-    # Expect: k, goal, file_name
+    """first conditions checking"""
     if len(sys.argv) != 4:
         print("An Error Has Occurred")
         sys.exit(1)
@@ -48,6 +48,8 @@ def main():
     except ImportError:
         print("An Error Has Occurred")
         sys.exit(1)
+
+    """now we can start the actual computation"""
     points_list = points.tolist()
     if goal == 'sym':
         result = symnmf_mod.sym(points_list)
@@ -68,7 +70,7 @@ def main():
             sys.exit(1)
         print_matrix(np.array(result))
     else:
-        # goal == 'symnmf': run shared logic, print H
+        """now we can run the SymNMF algorithm"""
         H_final = run_symnmf(points, k)
         if H_final is None:
             print("An Error Has Occurred")
